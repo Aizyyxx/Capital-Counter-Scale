@@ -11,11 +11,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #0d0f14; }
-  input::-webkit-inner-spin-button,
-  input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  input { -moz-appearance: textfield; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d0f14; }
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; }
+input { -moz-appearance: textfield; }
 </style>
 </head>
 <body>
@@ -29,16 +28,19 @@ const inputStyle = { flex: 1, background: "#0d0f14", border: "1px solid #252a38"
 const btnStyle = { background: "#c8ff00", color: "#000", border: "none", borderRadius: 10, fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.3rem", letterSpacing: "0.08em", padding: "12px 22px", cursor: "pointer", whiteSpace: "nowrap", height: 50 };
 
 function App() {
-  const [goal, setGoal] = useState(() => parseFloat(localStorage.getItem('cap_goal') || '0'));
-  const [current, setCurrent] = useState(() => parseFloat(localStorage.getItem('cap_current') || '0'));
-  const [log, setLog] = useState(() => JSON.parse(localStorage.getItem('cap_log') || '[]'));
+  const load = (k, def) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : def; } catch(e) { return def; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
+
+  const [goal, setGoal] = useState(() => load('cap_goal', 0));
+  const [current, setCurrent] = useState(() => load('cap_current', 0));
+  const [log, setLog] = useState(() => load('cap_log', []));
   const [goalInput, setGoalInput] = useState("");
   const [addInput, setAddInput] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => { localStorage.setItem('cap_goal', goal); }, [goal]);
-  useEffect(() => { localStorage.setItem('cap_current', current); }, [current]);
-  useEffect(() => { localStorage.setItem('cap_log', JSON.stringify(log)); }, [log]);
+  useEffect(() => { save('cap_goal', goal); }, [goal]);
+  useEffect(() => { save('cap_current', current); }, [current]);
+  useEffect(() => { save('cap_log', log); }, [log]);
 
   const pct = goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
   const pctDisplay = goal > 0 ? Math.round((current / goal) * 100) : 0;
@@ -62,9 +64,7 @@ function App() {
   function handleReset() {
     setGoal(0); setCurrent(0); setLog([]);
     setGoalInput(""); setAddInput(""); setError("");
-    localStorage.removeItem('cap_goal');
-    localStorage.removeItem('cap_current');
-    localStorage.removeItem('cap_log');
+    try { localStorage.removeItem('cap_goal'); localStorage.removeItem('cap_current'); localStorage.removeItem('cap_log'); } catch(e) {}
   }
 
   return (
